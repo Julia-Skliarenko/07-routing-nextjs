@@ -9,7 +9,7 @@ interface PageProps {
 
 export default async function NotesPage({ params }: PageProps) {
   const { slug } = await params;
-  const rawTag = slug[0];
+  const rawTag = slug?.[0] || 'all';
 
   const queryClient = new QueryClient();
 
