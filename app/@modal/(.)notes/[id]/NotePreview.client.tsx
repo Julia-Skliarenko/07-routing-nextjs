@@ -1,26 +1,45 @@
 'use client';
 
-import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchNoteById } from '@/lib/api';
+import { useRouter } from 'next/navigation';
+import Modal from '@/components/Modal/Modal';
 
-interface NotePreviewProps {
+interface NotePreviewClientProps {
   id: string;
 }
 
-export default function NotePreview({ id }: NotePreviewProps) {
+export default function NotePreviewClient({ id }: NotePreviewClientProps) {
+  const router = useRouter();
+
   const { data: note, isLoading, error } = useQuery({
     queryKey: ['note', id],
     queryFn: () => fetchNoteById(id),
+    refetchOnMount: true, // <-- Требование ревьювера
   });
 
-  if (isLoading) return <p>Loading note...</p>;
-  if (error || !note) return <p>Failed to load note.</p>;
+  const handleClose = () => {
+    router.back(); // <-- Закрытие через возвращение назад по истории роутера
+  };
 
   return (
-    <div>
-      <h2>{note.title}</h2>
-      <p>{note.content}</p>
-    </div>
+    <Modal isOpen={true} onClose={handleClose}>
+      <div>
+        <button onClick={handleClose}>Close ✕</button>
+
+        {isLoading && <p>Loading note details...</p>}
+        {error && <p>Error loading note details.</p>}
+
+        {note && (
+          <div>
+            <h2>{note.title}</h2>
+            <p>{note.content}</p>
+            {/* Отображаем tag и createdAt */}
+            {note.tag && <p>Tag: {note.tag}</p>}
+            {note.createdAt && <p>Created at: {new Date(note.createdAt).toLocaleString()}</p>}
+          </div>
+        )}
+      </div>
+    </Modal>
   );
 }

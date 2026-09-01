@@ -1,54 +1,69 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchNotes } from '@/lib/api';
-import { NoteList } from '@/components/NoteList/NoteList';
-import { SearchBox } from '@/components/SearchBox/SearchBox';
 import { Pagination } from '@/components/Pagination/Pagination';
-import css from './NotesPage.module.css';
+import { SearchBox } from '@/components/SearchBox/SearchBox';
+import { NoteList } from '@/components/NoteList/NoteList';
+import Modal from '@/components/Modal/Modal';
+import NoteForm from '@/components/NoteForm/NoteForm';
 
 interface NotesClientProps {
-  initialTag?: string;
+  initialTag: string;
 }
 
 export default function NotesClient({ initialTag }: NotesClientProps) {
-  const [page, setPage] = React.useState(1);
-  const [search, setSearch] = React.useState('');
+  const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const perPage = 12;
 
-  const tagParam = !initialTag || initialTag === 'all' ? undefined : initialTag;
+  // Реализация дебаунса для поиска (задержка 300мс)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 300);
 
-  // Убираем сложную логику гидратации с клиента, если она ломается, 
-  // и делаем прямой стабильный запрос через useQuery
-  const { data, isPending, error } = useQuery({
-    queryKey: ['notes', page, search, tagParam],
-    queryFn: () => fetchNotes(page, 12, search, tagParam),
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Запрос через React Query
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['notes', page, perPage, debouncedSearch, initialTag],
+    queryFn: () => fetchNotes(page, perPage, debouncedSearch, initialTag),
+    placeholderData: (previousData) => previousData,
   });
 
-  if (error) {
-    return <div className={css.container}><p>Error loading notes: {error.message}</p></div>;
-  }
-
   return (
-    <div className={css.container}>
-      <SearchBox value={search} onChange={(val) => { setSearch(val); setPage(1); }} />
+    <div>
+      {/* Кнопка открытия модального окна для создания новой заметки */}
+      <button onClick={() => setIsModalOpen(true)}>Create Note</button>
 
-      <h1 className={css.title}>
-        Notes {initialTag && initialTag !== 'all' ? `(${initialTag})` : '(All)'}
-      </h1>
-      
-      {isPending ? (
-        <p>Loading notes...</p>
-      ) : (
-        <NoteList notes={data?.notes || []} />
-      )}
+      {/* Поиск с дебаунсом */}
+      <SearchBox value={search} onChange={setSearch} />
 
-      {data?.totalPages && data.totalPages > 1 && (
-        <Pagination 
-          currentPage={page} 
-          totalPages={data.totalPages} 
-          onPageChange={setPage} 
-        />
+      {/* Состояния загрузки и ошибки */}
+      {isLoading && <p>Loading...</p>}
+      {error && <p>Error loading notes.</p>}
+
+      {/* Список заметок */}
+      <NoteList notes={data?.notes || []} />
+
+      {/* Пагинация */}
+      <Pagination 
+        currentPage={page} 
+        totalPages={data?.totalPages || 1} 
+        onPageChange={setPage} 
+      />
+
+      {/* Модальное окно для создания заметки с компонентом NoteForm */}
+      {isModalOpen && (
+        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+          <NoteForm onClose={() => setIsModalOpen(false)} />
+        </Modal>
       )}
     </div>
   );

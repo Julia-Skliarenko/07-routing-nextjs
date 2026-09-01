@@ -1,28 +1,29 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import './globals.css';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer/Footer';
 import TanStackProvider from '@/components/TanStackProvider/TanStackProvider';
-import './globals.css';
-
-const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'NoteHub',
-  description: 'Application for managing personal notes',
+  title: 'Notes App',
+  description: 'Next.js notes application',
 };
 
-export default function RootLayout({
-  children,
-}: {
+interface RootLayoutProps {
   children: React.ReactNode;
-}) {
+  modal: React.ReactNode; // <-- Добавили тип для модального слота
+}
+
+export default function RootLayout({ children, modal }: RootLayoutProps) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body>
         <TanStackProvider>
           <Header />
-          {children}
+          <main>
+            {children}
+            {modal} {/* <-- Отрендерили параллельный слот роута */}
+          </main>
           <Footer />
         </TanStackProvider>
       </body>
