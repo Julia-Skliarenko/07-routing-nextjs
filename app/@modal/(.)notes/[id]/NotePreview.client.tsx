@@ -15,11 +15,11 @@ export default function NotePreviewClient({ id }: NotePreviewClientProps) {
   const { data: note, isLoading, error } = useQuery({
     queryKey: ['note', id],
     queryFn: () => fetchNoteById(id),
-    refetchOnMount: true, // <-- Требование ревьювера
+    refetchOnMount: false, // <-- Установлено в false, чтобы избежать повторного запроса предзагруженных данных
   });
 
   const handleClose = () => {
-    router.back(); // <-- Закрытие через возвращение назад по истории роутера
+    router.back(); // Закрытие через возвращение назад по истории роутера
   };
 
   return (
