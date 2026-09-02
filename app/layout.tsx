@@ -19,12 +19,14 @@ export default function RootLayout({ children, modal }: RootLayoutProps) {
     <html lang="en">
       <body>
         <TanStackProvider>
-          <Header />
-          <main>
-            {children}
-            {modal} {/* <-- Отрендерили параллельный слот роута */}
-          </main>
-          <Footer />
+          <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+            <Header />
+            <main style={{ flex: 1 }}>
+              {children}
+              {modal} {/* <-- Отрендерили параллельный слот роута */}
+            </main>
+            <Footer />
+          </div>
         </TanStackProvider>
       </body>
     </html>

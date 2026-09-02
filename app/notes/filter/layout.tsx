@@ -1,3 +1,5 @@
+import css from './LayoutNotes.module.css';
+
 export default function NotesLayout({
   children,
   sidebar,
@@ -6,11 +8,11 @@ export default function NotesLayout({
   sidebar: React.ReactNode;
 }) {
   return (
-    <div style={{ display: 'flex', minHeight: 'calc(100vh - 100px)' }}>
-      <aside style={{ width: '250px', padding: '20px', borderRight: '1px solid #ddd' }}>
+    <div className={css.container}>
+      <aside className={css.sidebar}>
         {sidebar}
       </aside>
-      <main style={{ flex: 1, padding: '20px' }}>
+      <main className={css.notesWrapper}>
         {children}
       </main>
     </div>

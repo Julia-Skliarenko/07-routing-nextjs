@@ -1,8 +1,7 @@
 export default function NotFound() {
   return (
-    <div>
-      <h2>Page not found</h2>
-      <p>Could not find requested resource</p>
+    <div style={{ padding: '40px 20px', minHeight: '50vh' }}>
+      <h1>404 | Page Not Page</h1>
     </div>
   );
 }

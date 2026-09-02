@@ -1,19 +1,24 @@
 import Link from 'next/link';
 import css from './SidebarNotes.module.css';
 
-// Список тегов, по которым можно фильтровать заметки
-const tags = ['all', 'work', 'personal', 'todo', 'meeting'];
+const tags = [
+  { slug: 'all', label: 'All notes' },
+  { slug: 'Todo', label: 'Todo' },
+  { slug: 'Work', label: 'Work' },
+  { slug: 'Personal', label: 'Personal' },
+  { slug: 'Meeting', label: 'Meeting' },
+  { slug: 'Shopping', label: 'Shopping' },
+];
 
 export default function SidebarNotes() {
   return (
     <aside className={css.sidebar}>
-      <h3 className={css.title}>Filter by tag</h3>
-      <ul className={css.list}>
-        {tags.map((tag) => (
-          <li key={tag} className={css.listItem}>
+      <ul className={css.menuList}>
+        {tags.map(({ slug, label }) => (
+          <li key={slug} className={css.menuItem}>
             {/* Ссылка ведет на динамический маршрут с выбранным тегом */}
-            <Link href={`/notes/filter/${tag}`} className={css.link}>
-              {tag.toUpperCase()}
+            <Link href={`/notes/filter/${slug}`} className={css.menuLink}>
+              {label}
             </Link>
           </li>
         ))}
