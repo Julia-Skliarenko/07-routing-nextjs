@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useParams } from 'next/navigation';
 import { fetchNotes } from '@/lib/api';
 import { Pagination } from '@/components/Pagination/Pagination';
 import { SearchBox } from '@/components/SearchBox/SearchBox';
@@ -16,11 +15,8 @@ interface NotesClientProps {
 }
 
 export default function NotesClient({ initialTag }: NotesClientProps) {
-  const params = useParams();
-  const slug = params?.slug as string[];
-  const currentTagFromUrl = slug?.[0] || initialTag;
-  
-  const activeTag = currentTagFromUrl.toLowerCase() === 'all' ? '' : currentTagFromUrl.toLowerCase();
+  // Используем initialTag, переданный с сервера, чтобы на первом рендере не было рассинхрона
+  const activeTag = initialTag.toLowerCase() === 'all' ? '' : initialTag.toLowerCase();
 
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
