@@ -22,12 +22,17 @@ export interface CreateNotePayload {
 export async function fetchNotes(
   page: number = 1,
   perPage: number = 12,
-  search?: string
+  search?: string,
+  tag?: string
 ): Promise<FetchNotesResponse> {
   const params: Record<string, string | number> = { page, perPage };
   
   if (search && search.trim() !== '') {
     params.search = search.trim();
+  }
+
+  if (tag && tag.trim() !== '') {
+    params.tag = tag.trim();
   }
 
   const response = await apiClient.get<FetchNotesResponse>('/notes', { params });

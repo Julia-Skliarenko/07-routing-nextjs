@@ -15,8 +15,7 @@ interface NotesClientProps {
 }
 
 export default function NotesClient({ initialTag }: NotesClientProps) {
-  // Используем initialTag, переданный с сервера, чтобы на первом рендере не было рассинхрона
-  const activeTag = initialTag.toLowerCase() === 'all' ? '' : initialTag.toLowerCase();
+  const activeTag = initialTag.toLowerCase() === 'all' ? '' : initialTag;
 
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -34,15 +33,12 @@ export default function NotesClient({ initialTag }: NotesClientProps) {
   }, [search]);
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['notes', page, perPage, debouncedSearch],
-    queryFn: () => fetchNotes(page, perPage, debouncedSearch),
+    queryKey: ['notes', page, perPage, debouncedSearch, activeTag],
+    queryFn: () => fetchNotes(page, perPage, debouncedSearch, activeTag),
     placeholderData: (previousData) => previousData,
   });
 
-  const allNotes = data?.notes || [];
-  const filteredNotes = activeTag 
-    ? allNotes.filter((note) => note.tag?.toLowerCase() === activeTag) 
-    : allNotes;
+  const notes = data?.notes || [];
 
   return (
     <div className={css.app}>
@@ -63,7 +59,8 @@ export default function NotesClient({ initialTag }: NotesClientProps) {
       {isLoading && <p>Loading...</p>}
       {error && <p>Error loading notes.</p>}
 
-      <NoteList notes={filteredNotes} />
+      {(notes.length > 0 || isLoading) && <NoteList notes={notes} />}
+      {notes.length === 0 && !isLoading && <p>No notes found.</p>}
 
       {isModalOpen && (
         <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>

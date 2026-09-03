@@ -9,15 +9,18 @@ interface PageProps {
 }
 
 export default async function NotesPage({ params }: PageProps) {
-  const { slug } = await params;
-  const tagFromUrl = slug?.[0] || 'all';
-  const apiTag = tagFromUrl.toLowerCase() === 'all' ? '' : tagFromUrl.toLowerCase();
+  const resolvedParams = await params;
+  const slugArray = resolvedParams?.slug || [];
+  
+  const tagFromUrl = slugArray[0] || 'all';
+  
+  const apiTag = tagFromUrl.toLowerCase() === 'all' ? '' : tagFromUrl;
 
   const queryClient = new QueryClient();
 
-  await queryClient.ensureQueryData({
-    queryKey: ['notes', 1, 12, ''],
-    queryFn: () => fetchNotes(1, 12, ''),
+  await queryClient.prefetchQuery({
+    queryKey: ['notes', 1, 12, '', apiTag],
+    queryFn: () => fetchNotes(1, 12, '', apiTag),
   });
 
   return (
